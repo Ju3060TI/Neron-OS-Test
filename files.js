@@ -1,50 +1,70 @@
 // ============================================
-// MÖRSER-KARL GX DESKTOP – files.js
-// Dateimanager (simuliert)
+// MÖRSER-KARL GX LINUX – files.js
+// Linux-Dateimanager mit echtem Dateisystem
 // ============================================
 
-// Simuliertes Dateisystem
-const fileSystem = {
-    'home': {
-        type: 'folder',
+const linuxFS = {
+    '/': {
+        type: 'dir',
         children: {
-            'Dokumente': {
-                type: 'folder',
+            'home': {
+                type: 'dir',
                 children: {
-                    'readme.txt': { type: 'file', content: 'Willkommen bei Mörser-Karl GX Desktop!\n\nDies ist ein simuliertes Dateisystem.\nViel Spaß beim Erkunden! 💣', size: '128 B' },
-                    'proxy-config.txt': { type: 'file', content: 'Proxy URL: ' + PROXY, size: '64 B' },
-                    'notizen.txt': { type: 'file', content: 'Herr Franz ist der beste Admin!\nChromebook Freischaltung am Montag.', size: '96 B' }
+                    'user': {
+                        type: 'dir',
+                        children: {
+                            'Dokumente': { type: 'dir', children: {
+                                'schulprojekt.txt': { type: 'file', content: 'Mörser-Karl GX – Schulprojekt 2026\nBetreuer: Herr Franz\nStatus: Genehmigt ✅', size: '256B' },
+                                'notizen.md': { type: 'file', content: '# Notizen\n- Chromebook Freischaltung Montag\n- USB-Stick als Serverplatte\n- Puppeteer für YouTube', size: '128B' }
+                            }},
+                            'Downloads': { type: 'dir', children: {
+                                'desert-order.exe': { type: 'file', content: '🏜️ Desert Order Launcher', size: '2.4M' },
+                                'cookie-clicker.app': { type: 'file', content: '🍪 Cookie Clicker', size: '1.1M' }
+                            }},
+                            'Desktop': { type: 'dir', children: {} },
+                            'Bilder': { type: 'dir', children: {
+                                'screenshot.png': { type: 'file', content: '📸 Screenshot', size: '512K' },
+                                'logo.png': { type: 'file', content: '💣 Mörser-Karl Logo', size: '256K' }
+                            }},
+                            'Musik': { type: 'dir', children: {
+                                'synthwave.mp3': { type: 'file', content: '🎵 Synthwave Track', size: '4.2M' },
+                                'lofi.mp3': { type: 'file', content: '🎵 LoFi Beats', size: '3.8M' }
+                            }},
+                            'projekte': {
+                                type: 'dir',
+                                children: {
+                                    'moerser-karl': {
+                                        type: 'dir',
+                                        children: {
+                                            'index.html': { type: 'file', content: '<!DOCTYPE html>...', size: '8.4K' },
+                                            'style.css': { type: 'file', content: ':root { ... }', size: '12.2K' },
+                                            'proxy.js': { type: 'file', content: '// Proxy Config', size: '2.4K' },
+                                            'terminal.js': { type: 'file', content: '// Linux Terminal', size: '15.6K' },
+                                            'README.md': { type: 'file', content: '# Mörser-Karl GX Linux Edition', size: '1.2K' },
+                                            '.config': { type: 'file', content: '{"theme":"opera-gx","proxy":"cloudflare"}', size: '128B' }
+                                        }
+                                    }
+                                }
+                            },
+                            '.bashrc': { type: 'file', content: 'export PS1="┌──(\\u@\\h)-[\\w]\\n└─$ "', size: '512B' }
+                        }
+                    }
                 }
             },
-            'Downloads': {
-                type: 'folder',
+            'etc': {
+                type: 'dir',
                 children: {
-                    'desert-order.exe': { type: 'file', content: '🏜️ Desert Order Launcher', size: '2.4 MB' },
-                    'cookie-clicker.app': { type: 'file', content: '🍪 Cookie Clicker', size: '1.1 MB' }
+                    'hostname': { type: 'file', content: 'mk-gx', size: '6B' },
+                    'os-release': { type: 'file', content: 'NAME="Mörser-Karl GX Linux"\nVERSION="2.0.26 LTS"', size: '128B' }
                 }
             },
-            'Desktop': {
-                type: 'folder',
-                children: {}
-            },
-            'Bilder': {
-                type: 'folder',
-                children: {
-                    'screenshot.png': { type: 'file', content: '📸 Screenshot', size: '512 KB' },
-                    'logo.png': { type: 'file', content: '💣 Mörser-Karl Logo', size: '256 KB' }
-                }
-            },
-            'Musik': {
-                type: 'folder',
-                children: {
-                    'never-gonna-give-you-up.mp3': { type: 'file', content: '🎵 Rick Astley', size: '3.8 MB' }
-                }
-            }
+            'var': { type: 'dir', children: { 'log': { type: 'dir', children: {} } } },
+            'tmp': { type: 'dir', children: {} }
         }
     }
 };
 
-let currentPath = ['home'];
+let filePath = ['home', 'user'];
 let fileHistory = [];
 
 function openFiles() {
@@ -53,38 +73,46 @@ function openFiles() {
             <!-- Toolbar -->
             <div style="display:flex;padding:8px 12px;gap:8px;align-items:center;background:var(--surface-light);border-bottom:1px solid var(--border-dim);">
                 <button onclick="fileGoBack()" style="background:transparent;border:1px solid var(--border-dim);color:var(--text);padding:4px 10px;border-radius:4px;cursor:pointer;font-size:12px;" title="Zurück">⬅️</button>
-                <button onclick="fileGoForward()" style="background:transparent;border:1px solid var(--border-dim);color:var(--text);padding:4px 10px;border-radius:4px;cursor:pointer;font-size:12px;" title="Vorwärts">➡️</button>
                 <button onclick="fileGoUp()" style="background:transparent;border:1px solid var(--border-dim);color:var(--text);padding:4px 10px;border-radius:4px;cursor:pointer;font-size:12px;" title="Nach oben">⬆️</button>
-                <div id="filePath" style="flex:1;padding:4px 10px;background:#1a1a1a;border:1px solid var(--border-dim);border-radius:4px;color:var(--text);font-size:11px;font-family:monospace;">
-                    /home
+                <button onclick="fileRefresh()" style="background:transparent;border:1px solid var(--border-dim);color:var(--text);padding:4px 10px;border-radius:4px;cursor:pointer;font-size:12px;" title="Aktualisieren">🔄</button>
+                <div id="filePathDisplay" style="flex:1;padding:4px 10px;background:#1a1a1a;border:1px solid var(--border-dim);border-radius:4px;color:var(--text);font-size:11px;font-family:monospace;">
+                    🐧 /home/user
                 </div>
             </div>
             
+            <!-- Adressleiste (Linux-Style) -->
+            <div style="display:flex;padding:4px 12px;background:var(--surface);border-bottom:1px solid var(--border-dim);align-items:center;gap:8px;">
+                <span style="color:var(--green);font-family:monospace;font-size:11px;">user@mk-gx:</span>
+                <input type="text" id="filePathInput" value="/home/user" 
+                       style="flex:1;padding:4px 8px;background:#1a1a1a;border:1px solid var(--border-dim);border-radius:4px;color:var(--text);font-size:11px;font-family:monospace;"
+                       onkeypress="if(event.key==='Enter')fileNavigatePath(this.value)">
+            </div>
+            
             <!-- Dateiliste -->
-            <div id="fileList" style="flex:1;overflow-y:auto;padding:8px;">
+            <div id="fileList" style="flex:1;overflow-y:auto;padding:8px;background:var(--surface);">
                 <!-- Per JS gefüllt -->
             </div>
             
-            <!-- Statusleiste -->
-            <div style="padding:4px 12px;background:var(--surface-light);border-top:1px solid var(--border-dim);font-size:10px;color:var(--text-dim);">
+            <!-- Statusleiste (Linux-Style) -->
+            <div style="display:flex;padding:4px 12px;background:var(--surface-light);border-top:1px solid var(--border-dim);font-size:10px;color:var(--text-dim);gap:20px;">
                 <span id="fileCount">0 Elemente</span>
+                <span>🐧 mk-gx</span>
+                <span style="margin-left:auto;">Speicher: 52G frei</span>
             </div>
         </div>
     `;
     
-    createWindow('files', '📁 Dateimanager', '📁', content, 650, 450);
-    
-    // Dateien anzeigen
+    createWindow('files', '📁 Dateimanager', '📁', content, 700, 500);
     setTimeout(() => refreshFileList(), 100);
 }
 
-function getCurrentFolder() {
-    let folder = fileSystem;
-    for (const part of currentPath) {
+function getFolderByPath(pathArray) {
+    let folder = linuxFS['/'].children;
+    for (const part of pathArray) {
         if (folder[part] && folder[part].children) {
             folder = folder[part].children;
         } else {
-            return {};
+            return null;
         }
     }
     return folder;
@@ -92,106 +120,142 @@ function getCurrentFolder() {
 
 function refreshFileList() {
     const fileList = document.getElementById('fileList');
-    const filePath = document.getElementById('filePath');
+    const filePathDisplay = document.getElementById('filePathDisplay');
+    const filePathInput = document.getElementById('filePathInput');
     const fileCount = document.getElementById('fileCount');
     if (!fileList) return;
     
-    const folder = getCurrentFolder();
+    const folder = getFolderByPath(filePath);
+    if (!folder) {
+        fileList.innerHTML = '<div style="color:var(--text-dim);padding:20px;text-align:center;">📂 Ordner nicht gefunden</div>';
+        return;
+    }
+    
     fileList.innerHTML = '';
     
     const entries = Object.entries(folder);
-    
-    // Ordner zuerst, dann Dateien
-    const folders = entries.filter(([_, v]) => v.type === 'folder');
+    const folders = entries.filter(([_, v]) => v.type === 'dir');
     const files = entries.filter(([_, v]) => v.type === 'file');
     
     // ".." für übergeordneten Ordner
-    if (currentPath.length > 1) {
+    if (filePath.length > 0) {
         const backItem = document.createElement('div');
         backItem.className = 'file-item';
-        backItem.innerHTML = '<span class="file-icon">📂</span> <span style="color:var(--accent);">..</span>';
+        backItem.style.cssText = 'display:flex;align-items:center;gap:10px;padding:8px 12px;cursor:pointer;font-size:13px;color:var(--text);border-radius:4px;';
+        backItem.innerHTML = '<span style="font-size:20px;">📂</span> <span style="color:var(--accent);">..</span>';
         backItem.addEventListener('dblclick', () => fileGoUp());
+        backItem.addEventListener('mouseover', function() { this.style.background = 'var(--surface-light)'; });
+        backItem.addEventListener('mouseout', function() { this.style.background = ''; });
         fileList.appendChild(backItem);
     }
     
     // Ordner
     folders.forEach(([name, info]) => {
         const item = document.createElement('div');
-        item.className = 'file-item';
-        item.innerHTML = `<span class="file-icon">📁</span> ${name}`;
-        item.addEventListener('dblclick', () => fileNavigate(name));
+        item.style.cssText = 'display:flex;align-items:center;gap:10px;padding:8px 12px;cursor:pointer;font-size:13px;color:var(--text);border-radius:4px;';
+        item.innerHTML = `<span style="font-size:20px;">📁</span> <span style="color:#00aaff;">${name}</span>`;
+        item.addEventListener('dblclick', () => fileNavigateDown(name));
+        item.addEventListener('mouseover', function() { this.style.background = 'var(--surface-light)'; });
+        item.addEventListener('mouseout', function() { this.style.background = ''; });
         fileList.appendChild(item);
     });
     
     // Dateien
     files.forEach(([name, info]) => {
         const item = document.createElement('div');
-        item.className = 'file-item';
+        item.style.cssText = 'display:flex;align-items:center;gap:10px;padding:8px 12px;cursor:pointer;font-size:13px;color:var(--text);border-radius:4px;';
         const ext = name.split('.').pop();
         const icon = getFileIcon(ext);
-        item.innerHTML = `<span class="file-icon">${icon}</span> ${name} <span style="color:var(--text-dim);font-size:10px;margin-left:auto;">${info.size || ''}</span>`;
+        item.innerHTML = `<span style="font-size:20px;">${icon}</span> ${name} <span style="color:var(--text-dim);font-size:10px;margin-left:auto;">${info.size || ''}</span>`;
         item.addEventListener('dblclick', () => fileOpen(name, info));
+        item.addEventListener('mouseover', function() { this.style.background = 'var(--surface-light)'; });
+        item.addEventListener('mouseout', function() { this.style.background = ''; });
         fileList.appendChild(item);
     });
     
     // Pfad aktualisieren
-    if (filePath) filePath.textContent = '/' + currentPath.join('/');
+    const pathStr = '/' + filePath.join('/');
+    if (filePathDisplay) filePathDisplay.textContent = '🐧 ' + pathStr;
+    if (filePathInput) filePathInput.value = pathStr;
     if (fileCount) fileCount.textContent = entries.length + ' Elemente';
 }
 
 function getFileIcon(ext) {
     const icons = {
-        'txt': '📄',
-        'exe': '⚙️',
-        'app': '📱',
-        'png': '🖼️',
-        'jpg': '🖼️',
-        'mp3': '🎵',
-        'pdf': '📕',
-        'zip': '📦',
+        'txt': '📄', 'md': '📝', 'js': '💛', 'css': '🎨', 'html': '🌐',
+        'json': '⚙️', 'exe': '⚡', 'app': '📱', 'png': '🖼️', 'jpg': '🖼️',
+        'mp3': '🎵', 'pdf': '📕', 'zip': '📦', 'config': '🔧'
     };
     return icons[ext] || '📄';
 }
 
-function fileNavigate(folderName) {
-    fileHistory.push([...currentPath]);
-    currentPath.push(folderName);
+function fileNavigateDown(folderName) {
+    fileHistory.push([...filePath]);
+    filePath.push(folderName);
     refreshFileList();
+}
+
+function fileGoUp() {
+    if (filePath.length > 0) {
+        fileHistory.push([...filePath]);
+        filePath.pop();
+        refreshFileList();
+    }
 }
 
 function fileGoBack() {
     if (fileHistory.length > 0) {
-        currentPath = fileHistory.pop();
+        filePath = fileHistory.pop();
         refreshFileList();
     }
 }
 
-function fileGoForward() {
-    // Simpel: kein Forward (könnte man erweitern)
+function fileNavigatePath(pathStr) {
+    const parts = pathStr.split('/').filter(p => p);
+    const folder = getFolderByPath(parts);
+    if (folder) {
+        fileHistory.push([...filePath]);
+        filePath = parts;
+        refreshFileList();
+    } else {
+        alert('Pfad nicht gefunden: ' + pathStr);
+    }
 }
 
-function fileGoUp() {
-    if (currentPath.length > 1) {
-        fileHistory.push([...currentPath]);
-        currentPath.pop();
-        refreshFileList();
-    }
+function fileRefresh() {
+    refreshFileList();
 }
 
 function fileOpen(name, info) {
-    if (info.type === 'folder') {
-        fileNavigate(name);
+    if (info.type === 'dir') {
+        fileNavigateDown(name);
     } else {
         // Datei-Inhalt anzeigen
+        const ext = name.split('.').pop();
+        let displayContent = info.content || '(leer)';
+        
+        // Syntax-Highlighting simulieren
+        if (ext === 'js') {
+            displayContent = `<span style="color:#f0f;">const</span> <span style="color:#0ff;">PROXY</span> = <span style="color:#0f0;">'${PROXY}'</span>;\n<span style="color:#888;">// ${info.content}</span>`;
+        } else if (ext === 'html') {
+            displayContent = `<span style="color:#f0f;">&lt;!DOCTYPE html&gt;</span>\n<span style="color:#888;">&lt;!-- ${info.content} --&gt;</span>`;
+        } else if (ext === 'css') {
+            displayContent = `<span style="color:#f0f;">:root</span> {\n  <span style="color:#0ff;">--accent</span>: <span style="color:#0f0;">#ff4500</span>;\n}\n<span style="color:#888;">/* ${info.content} */</span>`;
+        } else if (ext === 'json' || ext === 'config') {
+            displayContent = `<span style="color:#f0f;">{</span>\n  <span style="color:#0ff;">"theme"</span>: <span style="color:#0f0;">"opera-gx"</span>\n<span style="color:#f0f;">}</span>`;
+        }
+        
         const content = `
-            <div style="padding:20px;color:var(--text);font-family:monospace;white-space:pre-wrap;">
-                <h3 style="color:var(--accent);margin-bottom:15px;">📄 ${name}</h3>
-                <p>${info.content || 'Keine Vorschau verfügbar.'}</p>
-                <p style="color:var(--text-dim);margin-top:20px;font-size:10px;">Größe: ${info.size || 'Unbekannt'}</p>
+            <div style="padding:20px;color:var(--text);font-family:monospace;white-space:pre-wrap;background:#1a1a1a;height:100%;overflow-y:auto;">
+                <h3 style="color:var(--accent);margin-bottom:15px;font-family:var(--font);">📄 ${name}</h3>
+                <div style="background:#0a0a0a;padding:15px;border-radius:8px;border:1px solid var(--border-dim);line-height:1.6;">
+                    ${displayContent}
+                </div>
+                <p style="color:var(--text-dim);margin-top:15px;font-size:10px;">Größe: ${info.size || 'Unbekannt'} | Typ: ${ext.toUpperCase()}-Datei</p>
             </div>
         `;
-        createWindow('file-viewer-' + name, '📄 ' + name, '📄', content, 400, 300);
+        createWindow('file-view-' + name, '📄 ' + name, '📄', content, 500, 400);
     }
 }
 
-console.log('📁 Dateimanager bereit');
+console.log('📁 Linux-Dateimanager bereit');
