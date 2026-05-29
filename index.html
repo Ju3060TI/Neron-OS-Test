@@ -2,69 +2,59 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <title>MÖRSER-KARL GX DESKTOP</title>
+    <title>MÖRSER-KARL GX LINUX</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <!-- ========== BOOT SCREEN ========== -->
+    <!-- BOOT SCREEN -->
     <div id="bootScreen">
-        <div class="boot-logo">💣</div>
-        <div class="boot-text">MÖRSER-KARL GX</div>
-        <div class="boot-loading">
-            <div class="boot-bar"></div>
-        </div>
-        <div class="boot-version">Version 2.0.26 – Desktop Edition</div>
+        <div class="boot-logo">🐧</div>
+        <div class="boot-text">MÖRSER-KARL GX LINUX</div>
+        <div class="boot-loading"><div class="boot-bar"></div></div>
+        <div class="boot-version">Kernel 6.9.0-mk-gx – LTS</div>
     </div>
 
-    <!-- ========== DESKTOP ========== -->
-    <div id="desktop">
-        <!-- Icons werden per JS generiert -->
-    </div>
+    <!-- DESKTOP -->
+    <div id="desktop"></div>
 
-    <!-- ========== TASKBAR ========== -->
+    <!-- TASKBAR -->
     <div id="taskbar">
-        <div class="taskbar-start" id="startBtn" title="Start">
-            <span>💣</span>
-        </div>
+        <div class="taskbar-start" id="startBtn">💣</div>
         <div class="taskbar-divider"></div>
-        <div class="taskbar-tabs" id="taskbarTabs">
-            <!-- Offene Fenster erscheinen hier -->
-        </div>
+        <div class="taskbar-tabs" id="taskbarTabs"></div>
         <div class="taskbar-spacer"></div>
+        <div class="taskbar-workspaces" id="workspaces">
+            <span class="ws active">1</span>
+            <span class="ws">2</span>
+            <span class="ws">3</span>
+            <span class="ws">4</span>
+        </div>
         <div class="taskbar-clock" id="taskbarClock">12:00</div>
-        <div class="taskbar-status">
-            <span class="status-dot" id="proxyStatus" title="Proxy Status"></span>
-        </div>
+        <div class="taskbar-status"><span class="status-dot" id="proxyStatus"></span></div>
+        <div class="taskbar-cpu">CPU 2.3%</div>
     </div>
 
-    <!-- ========== START MENÜ ========== -->
+    <!-- START MENÜ -->
     <div id="startMenu" class="hidden">
-        <div class="start-header">
-            <span>💣 MÖRSER-KARL GX</span>
-        </div>
-        <div class="start-apps" id="startApps">
-            <!-- Startmenü-Apps per JS -->
-        </div>
-        <div class="start-footer">
-            <span id="startShutdown" title="Herunterfahren">⏻</span>
-        </div>
+        <div class="start-header">🐧 MÖRSER-KARL LINUX</div>
+        <div class="start-apps" id="startApps"></div>
+        <div class="start-footer"><span id="startShutdown">⏻</span></div>
     </div>
 
-    <!-- ========== FENSTER-CONTAINER ========== -->
-    <div id="windowsContainer">
-        <!-- Fenster werden per JS erstellt -->
-    </div>
+    <!-- FENSTER CONTAINER -->
+    <div id="windowsContainer"></div>
 
-    <!-- ========== KONTEXTMENÜ ========== -->
+    <!-- KONTEXTMENÜ -->
     <div id="contextMenu" class="context-menu hidden">
-        <div class="context-item" onclick="refreshDesktop()">🔄 Aktualisieren</div>
         <div class="context-item" onclick="openApp('terminal')">💻 Terminal</div>
-        <div class="context-divider"></div>
+        <div class="context-item" onclick="openApp('browser')">🌐 Browser</div>
+        <div class="context-item" onclick="openApp('files')">📁 Dateien</div>
         <div class="context-item" onclick="openApp('settings')">⚙️ Einstellungen</div>
+        <div class="context-divider"></div>
+        <div class="context-item" onclick="refreshDesktop()">🔄 Aktualisieren</div>
     </div>
 
-    <!-- ========== JAVASCRIPT ========== -->
     <script src="proxy.js"></script>
     <script src="boot.js"></script>
     <script src="desktop.js"></script>
@@ -73,6 +63,7 @@
     <script src="terminal.js"></script>
     <script src="files.js"></script>
     <script src="settings.js"></script>
+    <script src="system.js"></script>
 
 </body>
 </html>
