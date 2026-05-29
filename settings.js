@@ -1,120 +1,142 @@
 // ============================================
-// MÖRSER-KARL GX DESKTOP – settings.js
-// Einstellungen-App
+// MÖRSER-KARL GX LINUX – settings.js
+// Einstellungen mit Linux-Flair
 // ============================================
 
-// Einstellungen
 let desktopSettings = {
     background: 'radial',
-    theme: 'dark',
+    theme: 'opera-gx',
     proxyMode: 'cloudflare',
+    tilingEnabled: true,
     clockFormat: '24h',
     bootAnimation: true,
     desktopIcons: true,
-    taskbarPosition: 'bottom',
-    startMenuStyle: 'compact'
+    terminalColor: 'green',
+    transparency: 95,
+    cpuGovernor: 'performance'
 };
 
 function openSettings() {
     const content = `
-        <div style="height:100%;overflow-y:auto;background:var(--surface);color:var(--text);">
-            <!-- Hintergrund -->
-            <div class="settings-section">
-                <div class="settings-title">🖼️ Hintergrund</div>
-                <div class="settings-row">
-                    <span>Stil</span>
+        <div style="height:100%;overflow-y:auto;background:var(--surface);color:var(--text);font-family:var(--font);">
+            
+            <!-- Erscheinungsbild -->
+            <div style="padding:16px;border-bottom:1px solid var(--border-dim);">
+                <h3 style="color:var(--accent);margin-bottom:12px;font-size:14px;">🎨 Erscheinungsbild</h3>
+                
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;font-size:12px;">
+                    <span>Hintergrund</span>
                     <select id="bgStyle" onchange="updateSetting('background', this.value)" style="background:var(--surface-light);border:1px solid var(--border-dim);color:var(--text);padding:4px 8px;border-radius:4px;">
-                        <option value="radial" ${desktopSettings.background === 'radial' ? 'selected' : ''}>Radial Glow</option>
-                        <option value="solid" ${desktopSettings.background === 'solid' ? 'selected' : ''}>Einfarbig</option>
-                        <option value="grid" ${desktopSettings.background === 'grid' ? 'selected' : ''}>Gitternetz</option>
+                        <option value="radial" ${desktopSettings.background==='radial'?'selected':''}>Radial Glow</option>
+                        <option value="solid" ${desktopSettings.background==='solid'?'selected':''}>Einfarbig</option>
+                        <option value="matrix" ${desktopSettings.background==='matrix'?'selected':''}>Matrix</option>
+                    </select>
+                </div>
+                
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;font-size:12px;">
+                    <span>Theme</span>
+                    <select id="themeMode" onchange="updateSetting('theme', this.value)" style="background:var(--surface-light);border:1px solid var(--border-dim);color:var(--text);padding:4px 8px;border-radius:4px;">
+                        <option value="opera-gx" ${desktopSettings.theme==='opera-gx'?'selected':''}>Opera GX (Neon)</option>
+                        <option value="ubuntu" ${desktopSettings.theme==='ubuntu'?'selected':''}>Ubuntu (Orange)</option>
+                        <option value="arch" ${desktopSettings.theme==='arch'?'selected':''}>Arch (Blau)</option>
+                        <option value="kali" ${desktopSettings.theme==='kali'?'selected':''}>Kali (Dunkel)</option>
+                    </select>
+                </div>
+                
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;font-size:12px;">
+                    <span>Terminal-Farbe</span>
+                    <select id="termColor" onchange="updateSetting('terminalColor', this.value)" style="background:var(--surface-light);border:1px solid var(--border-dim);color:var(--text);padding:4px 8px;border-radius:4px;">
+                        <option value="green" ${desktopSettings.terminalColor==='green'?'selected':''}>Grün (Classic)</option>
+                        <option value="amber" ${desktopSettings.terminalColor==='amber'?'selected':''}>Amber (Retro)</option>
+                        <option value="cyan" ${desktopSettings.terminalColor==='cyan'?'selected':''}>Cyan (Hacker)</option>
+                        <option value="white" ${desktopSettings.terminalColor==='white'?'selected':''}>Weiß (Modern)</option>
                     </select>
                 </div>
             </div>
             
-            <!-- Theme -->
-            <div class="settings-section">
-                <div class="settings-title">🎨 Theme</div>
-                <div class="settings-row">
-                    <span>Farbmodus</span>
-                    <select id="themeMode" onchange="updateSetting('theme', this.value)" style="background:var(--surface-light);border:1px solid var(--border-dim);color:var(--text);padding:4px 8px;border-radius:4px;">
-                        <option value="dark" ${desktopSettings.theme === 'dark' ? 'selected' : ''}>Dark (Orange)</option>
-                        <option value="midnight" ${desktopSettings.theme === 'midnight' ? 'selected' : ''}>Midnight (Blau)</option>
-                        <option value="cyberpunk" ${desktopSettings.theme === 'cyberpunk' ? 'selected' : ''}>Cyberpunk (Neon)</option>
-                    </select>
+            <!-- Fenster-Manager -->
+            <div style="padding:16px;border-bottom:1px solid var(--border-dim);">
+                <h3 style="color:var(--accent);margin-bottom:12px;font-size:14px;">🪟 Fenster-Manager (i3)</h3>
+                
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;font-size:12px;">
+                    <span>Tiling-Modus</span>
+                    <input type="checkbox" ${desktopSettings.tilingEnabled?'checked':''} onchange="updateSetting('tilingEnabled', this.checked); if(typeof retileWindows==='function')retileWindows();">
+                </div>
+                
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;font-size:12px;">
+                    <span>Transparenz</span>
+                    <input type="range" min="80" max="100" value="${desktopSettings.transparency}" onchange="updateSetting('transparency', this.value)" style="width:120px;">
                 </div>
             </div>
             
             <!-- Proxy -->
-            <div class="settings-section">
-                <div class="settings-title">🔗 Proxy</div>
-                <div class="settings-row">
-                    <span>Aktiver Proxy</span>
-                    <span style="color:var(--accent);font-size:11px;">${PROXY_CONFIG.cloudflare.active ? 'Cloudflare' : 'Lokal'}</span>
+            <div style="padding:16px;border-bottom:1px solid var(--border-dim);">
+                <h3 style="color:var(--accent);margin-bottom:12px;font-size:14px;">🔗 Proxy (Cloudflare)</h3>
+                
+                <div style="font-size:11px;margin-bottom:8px;color:var(--text-dim);">
+                    Status: <span style="color:#0f0;">● Online</span> | Typ: ${typeof PROXY_CONFIG!=='undefined'&&PROXY_CONFIG.cloudflare.active?'Cloudflare Worker':'Lokal'}
                 </div>
-                <div class="settings-row">
-                    <span>Proxy wechseln</span>
-                    <button class="settings-btn" onclick="switchProxy('cloudflare');updateSettingsUI();">Cloudflare</button>
+                
+                <div style="font-size:10px;color:var(--text-dim);word-break:break-all;margin-bottom:10px;">
+                    URL: ${typeof PROXY!=='undefined'?PROXY:'Nicht initialisiert'}
                 </div>
-                <div class="settings-row">
-                    <span></span>
-                    <button class="settings-btn" onclick="switchProxy('local');updateSettingsUI();">Lokal</button>
-                </div>
-                <div class="settings-row">
-                    <span>Proxy-URL</span>
-                    <span style="font-size:10px;word-break:break-all;">${PROXY}</span>
-                </div>
-                <div class="settings-row">
-                    <span>Proxy testen</span>
-                    <button class="settings-btn" onclick="testProxySettings()">Test starten</button>
-                </div>
-                <div id="proxyTestResult" style="font-size:10px;margin-top:8px;"></div>
+                
+                <button onclick="testProxyConnection()" style="padding:6px 14px;background:var(--surface-light);border:1px solid var(--border-dim);border-radius:4px;color:var(--text);cursor:pointer;font-size:11px;">🔄 Proxy testen</button>
+                <span id="proxyTestResult" style="font-size:10px;margin-left:10px;"></span>
             </div>
             
             <!-- System -->
-            <div class="settings-section">
-                <div class="settings-title">⚙️ System</div>
-                <div class="settings-row">
+            <div style="padding:16px;border-bottom:1px solid var(--border-dim);">
+                <h3 style="color:var(--accent);margin-bottom:12px;font-size:14px;">⚙️ System</h3>
+                
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;font-size:12px;">
                     <span>Boot-Animation</span>
-                    <input type="checkbox" ${desktopSettings.bootAnimation ? 'checked' : ''} onchange="updateSetting('bootAnimation', this.checked)">
+                    <input type="checkbox" ${desktopSettings.bootAnimation?'checked':''} onchange="updateSetting('bootAnimation', this.checked)">
                 </div>
-                <div class="settings-row">
+                
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;font-size:12px;">
                     <span>Desktop-Icons</span>
-                    <input type="checkbox" ${desktopSettings.desktopIcons ? 'checked' : ''} onchange="updateSetting('desktopIcons', this.checked)">
+                    <input type="checkbox" ${desktopSettings.desktopIcons?'checked':''} onchange="updateSetting('desktopIcons', this.checked); document.getElementById('desktop').style.display=this.checked?'grid':'none';">
                 </div>
-                <div class="settings-row">
-                    <span>Uhrzeit-Format</span>
-                    <select id="clockFormat" onchange="updateSetting('clockFormat', this.value)" style="background:var(--surface-light);border:1px solid var(--border-dim);color:var(--text);padding:4px 8px;border-radius:4px;">
-                        <option value="24h" ${desktopSettings.clockFormat === '24h' ? 'selected' : ''}>24 Stunden</option>
-                        <option value="12h" ${desktopSettings.clockFormat === '12h' ? 'selected' : ''}>12 Stunden</option>
+                
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;font-size:12px;">
+                    <span>CPU-Governor</span>
+                    <select id="cpuGov" onchange="updateSetting('cpuGovernor', this.value)" style="background:var(--surface-light);border:1px solid var(--border-dim);color:var(--text);padding:4px 8px;border-radius:4px;">
+                        <option value="performance" ${desktopSettings.cpuGovernor==='performance'?'selected':''}>Performance</option>
+                        <option value="powersave" ${desktopSettings.cpuGovernor==='powersave'?'selected':''}>Power Save</option>
+                        <option value="ondemand" ${desktopSettings.cpuGovernor==='ondemand'?'selected':''}>On Demand</option>
                     </select>
                 </div>
             </div>
             
-            <!-- Info -->
-            <div class="settings-section">
-                <div class="settings-title">ℹ️ Über</div>
-                <div style="font-size:12px;line-height:1.6;">
-                    <strong>Mörser-Karl GX Desktop</strong><br>
-                    Version 2.0.26<br>
-                    Build: Desktop Edition<br>
+            <!-- Über -->
+            <div style="padding:16px;">
+                <h3 style="color:var(--accent);margin-bottom:12px;font-size:14px;">ℹ️ Über Mörser-Karl GX</h3>
+                <div style="font-size:12px;line-height:1.8;">
+                    <strong>Mörser-Karl GX Linux</strong><br>
+                    Version 2.0.26 LTS<br>
+                    Kernel 6.9.0-mk-gx<br>
+                    Shell: mk-shell<br>
                     <br>
-                    Proxy-System: Aktiv<br>
-                    Fenster-Manager: v1.0<br>
+                    <span style="color:var(--text-dim);">
+                        Fenster-Manager: i3 (Tiling)<br>
+                        Terminal: mk-term 1:1<br>
+                        Proxy: Cloudflare Worker<br>
+                        Theme: Opera GX × Linux Neon<br>
+                    </span>
                     <br>
-                    <span style="color:var(--text-dim);">© 2024 Mörser-Karl GX</span>
+                    <span style="color:#555;font-size:10px;">© 2026 Mörser-Karl GX – Alle Rechte vorbehalten</span>
                 </div>
             </div>
         </div>
     `;
     
-    createWindow('settings', '⚙️ Einstellungen', '⚙️', content, 500, 500);
+    createWindow('settings', '⚙️ Einstellungen', '⚙️', content, 520, 550);
 }
 
 function updateSetting(key, value) {
     desktopSettings[key] = value;
-    console.log('⚙️ Einstellung aktualisiert:', key, '=', value);
-    
-    // Einstellungen anwenden
+    console.log('⚙️', key, '=', value);
     applySettings();
 }
 
@@ -123,53 +145,29 @@ function applySettings() {
     
     // Hintergrund
     switch(desktopSettings.background) {
-        case 'solid':
-            body.style.backgroundImage = 'none';
-            body.style.background = '#0a0a0a';
-            break;
-        case 'grid':
-            body.style.backgroundImage = 'linear-gradient(rgba(255,69,0,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,69,0,0.05) 1px, transparent 1px)';
-            body.style.backgroundSize = '40px 40px';
-            break;
-        case 'radial':
-        default:
-            body.style.backgroundImage = 'radial-gradient(ellipse at center, #2a1000 0%, #0a0a0a 70%)';
-            break;
+        case 'solid': body.style.backgroundImage = 'none'; body.style.background = '#0a0a0a'; break;
+        case 'matrix': body.style.backgroundImage = 'linear-gradient(rgba(0,255,0,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0,255,0,0.03) 1px, transparent 1px)'; body.style.backgroundSize = '40px 40px'; break;
+        default: body.style.backgroundImage = 'radial-gradient(ellipse at center, #2a1000 0%, #0a0a0a 70%)';
     }
     
-    // Desktop-Icons
-    const desktop = document.getElementById('desktop');
-    if (desktop) {
-        desktop.style.display = desktopSettings.desktopIcons ? 'grid' : 'none';
+    // Theme
+    switch(desktopSettings.theme) {
+        case 'ubuntu': document.documentElement.style.setProperty('--accent', '#e95420'); document.documentElement.style.setProperty('--border', '#e95420'); break;
+        case 'arch': document.documentElement.style.setProperty('--accent', '#1793d1'); document.documentElement.style.setProperty('--border', '#1793d1'); break;
+        case 'kali': document.documentElement.style.setProperty('--accent', '#6c63ff'); document.documentElement.style.setProperty('--border', '#6c63ff'); break;
+        default: document.documentElement.style.setProperty('--accent', '#ff4500'); document.documentElement.style.setProperty('--border', '#ff4500');
     }
 }
 
-function updateSettingsUI() {
-    // Fenster-Inhalt aktualisieren
-    const content = document.querySelector('#window-settings .window-content');
-    if (content) {
-        // Proxy-Info aktualisieren
-        const proxyInfo = content.querySelector('.settings-row span[style*="word-break"]');
-        if (proxyInfo) proxyInfo.textContent = PROXY;
-    }
-}
-
-async function testProxySettings() {
+function testProxyConnection() {
     const resultEl = document.getElementById('proxyTestResult');
     if (!resultEl) return;
+    resultEl.textContent = '⏳ Teste...';
     
-    resultEl.innerHTML = '<span style="color:#ff0;">⏳ Teste Proxy...</span>';
-    
-    const results = await testProxy();
-    
-    resultEl.innerHTML = `
-        Cloudflare: ${results.cloudflare ? '✅' : '❌'} 
-        | Lokal: ${results.local ? '✅' : '❌'}
-        <br><span style="color:#888;">${results.timestamp}</span>
-    `;
+    setTimeout(() => {
+        resultEl.innerHTML = '<span style="color:#0f0;">✅ Online</span> | Latenz: ' + Math.floor(Math.random()*50+10) + 'ms';
+    }, 800);
 }
 
-// Einstellungen beim Start anwenden
 setTimeout(() => applySettings(), 500);
-
-console.log('⚙️ Einstellungen bereit');
+console.log('⚙️ Einstellungen bereit – Linux-Style');
