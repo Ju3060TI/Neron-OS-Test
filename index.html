@@ -3,32 +3,48 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Neron OS – Core Edition</title>
+    <title>Neron OS – Desktop</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
 <div class="desktop" id="desktop">
 
-    <!-- DESKTOP ICONS -->
-    <div class="desktop-icon" data-app="files">
-        <span class="icon">📁</span>
-        <span class="label">Dateien</span>
-    </div>
-    <div class="desktop-icon" data-app="settings">
-        <span class="icon">⚙️</span>
-        <span class="label">Einstellungen</span>
-    </div>
-    <div class="desktop-icon" data-app="browser">
-        <span class="icon">🌐</span>
-        <span class="label">Browser</span>
-    </div>
-    <div class="desktop-icon" data-app="taskmanager">
-        <span class="icon">📊</span>
-        <span class="label">Taskmanager</span>
+    <!-- WALLPAPER / ICONS -->
+    <div class="wallpaper" id="wallpaper">
+        <!-- Desktop Icons (werden von JS erstellt) -->
     </div>
 
-    <!-- WINDOWS -->
+    <!-- TASKBAR -->
+    <div class="taskbar" id="taskbar">
+        <div class="start-btn" id="startBtn">
+            <span class="start-icon">⚡</span>
+            <span class="start-label">Start</span>
+        </div>
+        <div class="task-items" id="taskItems">
+            <!-- Offene Fenster erscheinen hier -->
+        </div>
+        <div class="clock" id="clock">12:00</div>
+    </div>
+
+    <!-- STARTMENÜ -->
+    <div class="start-menu hidden" id="startMenu">
+        <div class="start-header">
+            <span>⚡ NERON OS</span>
+        </div>
+        <div class="start-apps">
+            <div class="start-app" data-app="files">📁 Dateien</div>
+            <div class="start-app" data-app="browser">🌐 Browser</div>
+            <div class="start-app" data-app="settings">⚙️ Einstellungen</div>
+            <div class="start-app" data-app="taskmanager">📊 Taskmanager</div>
+            <div class="start-app" data-app="terminal">🖥️ Terminal</div>
+        </div>
+        <div class="start-footer">
+            <span>Neron OS v1.0</span>
+        </div>
+    </div>
+
+    <!-- WINDOW CONTAINER -->
     <div id="window-container"></div>
 
     <!-- NOTIFICATION -->
