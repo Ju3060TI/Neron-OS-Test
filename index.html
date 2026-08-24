@@ -2,68 +2,43 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <title>MÖRSER-KARL GX LINUX</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neron OS – Core Edition</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <!-- BOOT SCREEN -->
-    <div id="bootScreen">
-        <div class="boot-logo">🐧</div>
-        <div class="boot-text">MÖRSER-KARL GX LINUX</div>
-        <div class="boot-loading"><div class="boot-bar"></div></div>
-        <div class="boot-version">Kernel 6.9.0-mk-gx – LTS</div>
+<div class="desktop" id="desktop">
+
+    <!-- DESKTOP ICONS -->
+    <div class="desktop-icon" data-app="files">
+        <span class="icon">📁</span>
+        <span class="label">Dateien</span>
+    </div>
+    <div class="desktop-icon" data-app="settings">
+        <span class="icon">⚙️</span>
+        <span class="label">Einstellungen</span>
+    </div>
+    <div class="desktop-icon" data-app="browser">
+        <span class="icon">🌐</span>
+        <span class="label">Browser</span>
+    </div>
+    <div class="desktop-icon" data-app="taskmanager">
+        <span class="icon">📊</span>
+        <span class="label">Taskmanager</span>
     </div>
 
-    <!-- DESKTOP -->
-    <div id="desktop"></div>
+    <!-- WINDOWS -->
+    <div id="window-container"></div>
 
-    <!-- TASKBAR -->
-    <div id="taskbar">
-        <div class="taskbar-start" id="startBtn">💣</div>
-        <div class="taskbar-divider"></div>
-        <div class="taskbar-tabs" id="taskbarTabs"></div>
-        <div class="taskbar-spacer"></div>
-        <div class="taskbar-workspaces" id="workspaces">
-            <span class="ws active">1</span>
-            <span class="ws">2</span>
-            <span class="ws">3</span>
-            <span class="ws">4</span>
-        </div>
-        <div class="taskbar-clock" id="taskbarClock">12:00</div>
-        <div class="taskbar-status"><span class="status-dot" id="proxyStatus"></span></div>
-        <div class="taskbar-cpu">CPU 2.3%</div>
+    <!-- NOTIFICATION -->
+    <div class="notification hidden" id="notification">
+        <span class="title" id="notiTitle">Info</span>
+        <span id="notiText">Text</span>
+        <span class="close-noti" id="notiClose">✕</span>
     </div>
+</div>
 
-    <!-- START MENÜ -->
-    <div id="startMenu" class="hidden">
-        <div class="start-header">🐧 MÖRSER-KARL LINUX</div>
-        <div class="start-apps" id="startApps"></div>
-        <div class="start-footer"><span id="startShutdown">⏻</span></div>
-    </div>
-
-    <!-- FENSTER CONTAINER -->
-    <div id="windowsContainer"></div>
-
-    <!-- KONTEXTMENÜ -->
-    <div id="contextMenu" class="context-menu hidden">
-        <div class="context-item" onclick="openApp('terminal')">💻 Terminal</div>
-        <div class="context-item" onclick="openApp('browser')">🌐 Browser</div>
-        <div class="context-item" onclick="openApp('files')">📁 Dateien</div>
-        <div class="context-item" onclick="openApp('settings')">⚙️ Einstellungen</div>
-        <div class="context-divider"></div>
-        <div class="context-item" onclick="refreshDesktop()">🔄 Aktualisieren</div>
-    </div>
-
-    <script src="proxy.js"></script>
-    <script src="boot.js"></script>
-    <script src="desktop.js"></script>
-    <script src="window.js"></script>
-    <script src="apps.js"></script>
-    <script src="terminal.js"></script>
-    <script src="files.js"></script>
-    <script src="settings.js"></script>
-    <script src="system.js"></script>
-
+<script src="script.js"></script>
 </body>
 </html>
