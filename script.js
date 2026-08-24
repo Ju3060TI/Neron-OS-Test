@@ -1,6 +1,5 @@
 // ============================================================
-//  NERON OS – CORE EDITION
-//  Nur Dateien, Browser, Einstellungen + Taskmanager (live)
+//  NERON OS – Desktop mit Taskleiste & echtem Taskmanager
 // ============================================================
 
 // ---------- PROZESS-DATEN ----------
@@ -13,10 +12,15 @@ let processes = [
     { pid: 106, name: 'Explorer', cpu: 1, ram: 0.02, status: 'running' },
 ];
 let nextPid = 107;
+let windowCounter = 0;
 
-// ---------- DOM ----------
-const desktop = document.getElementById('desktop');
+// ---------- DOM REFS ----------
+const wallpaper = document.getElementById('wallpaper');
 const container = document.getElementById('window-container');
+const taskItems = document.getElementById('taskItems');
+const startMenu = document.getElementById('startMenu');
+const startBtn = document.getElementById('startBtn');
+const clockEl = document.getElementById('clock');
 const notification = document.getElementById('notification');
 const notiTitle = document.getElementById('notiTitle');
 const notiText = document.getElementById('notiText');
@@ -28,55 +32,127 @@ function showNotification(title, text) {
     notiText.textContent = text;
     notification.classList.remove('hidden');
     clearTimeout(window.notiTimeout);
-    window.notiTimeout = setTimeout(() => {
-        notification.classList.add('hidden');
-    }, 4000);
+    window.notiTimeout = setTimeout(() => notification.classList.add('hidden'), 4000);
 }
 notiClose.addEventListener('click', () => notification.classList.add('hidden'));
 
-// ---------- WINDOW HELPERS ----------
+// ---------- UHR ----------
+function updateClock() {
+    const now = new Date();
+    clockEl.textContent = now.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+}
+updateClock();
+setInterval(updateClock, 10000);
+
+// ---------- STARTMENÜ ----------
+startBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    startMenu.classList.toggle('hidden');
+});
+document.addEventListener('click', () => startMenu.classList.add('hidden'));
+startMenu.addEventListener('click', (e) => e.stopPropagation());
+
+// ---------- DESKTOP ICONS ----------
+const apps = [
+    { id: 'files', label: 'Dateien', icon: '📁' },
+    { id: 'browser', label: 'Browser', icon: '🌐' },
+    { id: 'settings', label: 'Einstellungen', icon: '⚙️' },
+    { id: 'taskmanager', label: 'Taskmanager', icon: '📊' },
+];
+
+apps.forEach(app => {
+    const el = document.createElement('div');
+    el.className = 'desktop-icon';
+    el.dataset.app = app.id;
+    el.innerHTML = `<span class="icon">${app.icon}</span><span class="label">${app.label}</span>`;
+    wallpaper.appendChild(el);
+    el.addEventListener('click', () => openApp(app.id));
+});
+
+// ---------- STARTMENÜ-APPS ----------
+document.querySelectorAll('.start-app').forEach(el => {
+    el.addEventListener('click', () => {
+        startMenu.classList.add('hidden');
+        openApp(el.dataset.app);
+    });
+});
+
+// ---------- APP-ÖFFNER ----------
+function openApp(appId) {
+    switch (appId) {
+        case 'files': openFiles(); break;
+        case 'browser': openBrowser(); break;
+        case 'settings': openSettings(); break;
+        case 'taskmanager': openTaskmanager(); break;
+        case 'terminal': showNotification('Terminal', 'Terminal wurde geöffnet.'); break;
+    }
+}
+
+// ---------- WINDOW HELPER ----------
 function createWindow(title, bodyHTML, width = 520, height = 340, x = 80, y = 60) {
+    const id = 'win-' + (++windowCounter);
     const win = document.createElement('div');
-    win.className = 'window';
-    win.style.width = Math.min(width, desktop.clientWidth - 40) + 'px';
-    win.style.height = Math.min(height, desktop.clientHeight - 60) + 'px';
-    win.style.left = Math.min(x, desktop.clientWidth - win.style.width.replace('px','') - 20) + 'px';
-    win.style.top = Math.min(y, desktop.clientHeight - win.style.height.replace('px','') - 20) + 'px';
+    win.className = 'window active';
+    win.id = id;
+    const maxW = window.innerWidth - 40;
+    const maxH = window.innerHeight - 120;
+    win.style.width = Math.min(width, maxW) + 'px';
+    win.style.height = Math.min(height, maxH) + 'px';
+    win.style.left = Math.min(x, maxW - 100) + 'px';
+    win.style.top = Math.min(y, maxH - 60) + 'px';
+    win.style.zIndex = 10 + windowCounter;
 
     win.innerHTML = `
         <div class="window-header">
             <span>${title}</span>
-            <span class="close">✕</span>
+            <span class="close" data-win="${id}">✕</span>
         </div>
         <div class="window-body">${bodyHTML}</div>
     `;
-
     container.appendChild(win);
 
-    // Close
+    // Taskleiste-Eintrag
+    const taskItem = document.createElement('div');
+    taskItem.className = 'task-item active';
+    taskItem.textContent = title;
+    taskItem.dataset.win = id;
+    taskItem.addEventListener('click', () => {
+        const w = document.getElementById(id);
+        if (w) {
+            w.classList.toggle('active');
+            taskItem.classList.toggle('active');
+            if (w.classList.contains('active')) w.style.zIndex = 10 + (++windowCounter);
+        }
+    });
+    taskItems.appendChild(taskItem);
+
+    // Close-Button
     win.querySelector('.close').addEventListener('click', () => {
         win.remove();
+        taskItem.remove();
+        showNotification('Fenster geschlossen', `${title} wurde geschlossen.`);
     });
 
     // Drag
     const header = win.querySelector('.window-header');
     let isDragging = false, ox = 0, oy = 0;
     header.addEventListener('mousedown', (e) => {
+        if (e.target.closest('.close')) return;
         isDragging = true;
         const rect = win.getBoundingClientRect();
-        const dRect = desktop.getBoundingClientRect();
         ox = e.clientX - rect.left;
         oy = e.clientY - rect.top;
         win.style.cursor = 'grabbing';
+        win.style.zIndex = 10 + (++windowCounter);
         e.preventDefault();
     });
     document.addEventListener('mousemove', (e) => {
         if (!isDragging) return;
-        const dRect = desktop.getBoundingClientRect();
+        const dRect = document.body.getBoundingClientRect();
         let x = e.clientX - dRect.left - ox;
         let y = e.clientY - dRect.top - oy;
-        x = Math.max(0, Math.min(x, dRect.width - win.offsetWidth));
-        y = Math.max(0, Math.min(y, dRect.height - win.offsetHeight - 10));
+        x = Math.max(0, Math.min(x, window.innerWidth - win.offsetWidth));
+        y = Math.max(0, Math.min(y, window.innerHeight - win.offsetHeight - 60));
         win.style.left = x + 'px';
         win.style.top = y + 'px';
     });
@@ -91,17 +167,15 @@ function createWindow(title, bodyHTML, width = 520, height = 340, x = 80, y = 60
 // ---------- TASKMANAGER ----------
 function openTaskmanager() {
     const win = createWindow('NERON TASKMANAGER', `
-        <table class="task-table" id="taskTable">
-            <thead><tr>
-                <th>PID</th><th>NAME</th><th>CPU</th><th>RAM</th><th>STATUS</th><th></th>
-            </tr></thead>
+        <table class="task-table">
+            <thead><tr><th>PID</th><th>NAME</th><th>CPU</th><th>RAM</th><th>STATUS</th><th></th></tr></thead>
             <tbody id="taskTableBody"></tbody>
         </table>
-    `, 640, 380, 60, 40);
+    `, 640, 400, 60, 40);
 
     const tbody = win.querySelector('#taskTableBody');
 
-    function render(filter = '') {
+    function renderTasks(filter = '') {
         const filtered = processes.filter(p =>
             p.name.toLowerCase().includes(filter.toLowerCase())
         );
@@ -118,7 +192,6 @@ function openTaskmanager() {
             `;
             tbody.appendChild(tr);
         });
-
         document.querySelectorAll('#taskTableBody .kill-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.stopPropagation();
@@ -127,12 +200,12 @@ function openTaskmanager() {
                 if (idx !== -1) {
                     const name = processes[idx].name;
                     processes.splice(idx, 1);
-                    render(searchInput.value);
+                    renderTasks(searchInput?.value || '');
+                    updateFooter();
                     showNotification('Prozess getötet', `${name} (PID ${pid}) wurde beendet.`);
                 }
             });
         });
-
         updateFooter();
     }
 
@@ -165,25 +238,25 @@ function openTaskmanager() {
     body.after(actions);
 
     const searchInput = actions.querySelector('#taskSearch');
-    searchInput.addEventListener('input', () => render(searchInput.value));
+    searchInput.addEventListener('input', () => renderTasks(searchInput.value));
 
     actions.querySelector('.refresh').addEventListener('click', () => {
-        render(searchInput.value);
+        renderTasks(searchInput.value);
         showNotification('Aktualisiert', 'Prozessliste neu geladen.');
     });
 
     actions.querySelector('.kill-all').addEventListener('click', () => {
-        if (processes.length === 0) {
+        if (!processes.length) {
             showNotification('Info', 'Keine Prozesse zum Töten.');
             return;
         }
         const count = processes.length;
         processes = [];
-        render(searchInput.value);
+        renderTasks(searchInput.value);
         showNotification('Massaker', `${count} Prozesse wurden getötet.`);
     });
 
-    render('');
+    renderTasks('');
 
     // Live-Updates
     const interval = setInterval(() => {
@@ -192,9 +265,8 @@ function openTaskmanager() {
             p.cpu = Math.max(0, Math.min(100, p.cpu + (Math.random() - 0.5) * 8));
             p.cpu = Math.round(p.cpu);
         });
-        render(searchInput.value);
+        renderTasks(searchInput.value);
     }, 5000);
-
     win.addEventListener('remove', () => clearInterval(interval));
 }
 
@@ -207,18 +279,14 @@ function openFiles() {
         { name: 'Projekte', type: 'folder' },
         { name: 'README.md', type: 'file' },
         { name: 'index.html', type: 'file' },
-        { name: 'config.json', type: 'file' },
     ];
-
-    let listHTML = '<ul class="file-list">';
+    let html = '<ul class="file-list">';
     files.forEach(f => {
         const icon = f.type === 'folder' ? '📁' : '📄';
-        const cls = f.type === 'folder' ? 'folder' : 'file';
-        listHTML += `<li class="${cls}"><span>${icon}</span> ${f.name}</li>`;
+        html += `<li class="${f.type}"><span>${icon}</span> ${f.name}</li>`;
     });
-    listHTML += '</ul>';
-
-    const win = createWindow('Dateien', listHTML, 440, 320, 100, 80);
+    html += '</ul>';
+    const win = createWindow('Dateien', html, 420, 300, 100, 80);
     win.querySelectorAll('.file-list li').forEach(li => {
         li.addEventListener('click', () => {
             showNotification('Datei geöffnet', `${li.textContent.trim()} wurde geöffnet.`);
@@ -230,47 +298,47 @@ function openFiles() {
 function openBrowser() {
     const win = createWindow('Browser', `
         <div class="browser-bar">
-            <input type="text" id="browserUrl" placeholder="URL eingeben..." value="https://neron-os.dev">
-            <button id="browserGo">Los</button>
+            <input type="text" id="browserUrl" placeholder="URL eingeben..." value="neron-os.dev">
+            <button id="browserGo">Go</button>
         </div>
         <div class="browser-content" id="browserContent">
             <div class="greeting">🌐 NERON BROWSER</div>
-            <p style="margin-top:10px;color:#5f738c;">Willkommen im Neron-Browser. Gib eine URL ein und klick auf "Los".</p>
-            <p style="margin-top:6px;color:#3a4a5a;font-size:12px;">(Demo – Seiten werden nicht geladen, nur die Idee.)</p>
+            <p style="margin-top:8px;color:#5f738c;">Gib eine URL ein oder klick auf ein Lesezeichen.</p>
+            <div style="margin-top:10px;display:flex;gap:12px;flex-wrap:wrap;">
+                <span style="color:#5f8ab5;cursor:pointer;" data-url="google.com">Google</span>
+                <span style="color:#5f8ab5;cursor:pointer;" data-url="youtube.com">YouTube</span>
+                <span style="color:#5f8ab5;cursor:pointer;" data-url="github.com">GitHub</span>
+            </div>
         </div>
-    `, 600, 360, 120, 60);
+    `, 580, 360, 120, 60);
 
     const urlInput = win.querySelector('#browserUrl');
     const goBtn = win.querySelector('#browserGo');
     const content = win.querySelector('#browserContent');
 
     function navigate(url) {
-        if (!url.startsWith('http://') && !url.startsWith('https://')) {
-            url = 'https://' + url;
-        }
+        if (!url.startsWith('http://') && !url.startsWith('https://')) url = 'https://' + url;
         content.innerHTML = `
             <div style="color:#5f738c;">Lade <span style="color:#b0c4de;">${url}</span> ...</div>
-            <div style="margin-top:20px;color:#3a4a5a;font-size:12px;">🌐 Dies ist eine Demo. Der echte Browser würde jetzt die Seite laden.</div>
-            <div style="margin-top:8px;color:#3a4a5a;font-size:12px;">🔒 Neron OS – Sicher & schnell.</div>
+            <div style="margin-top:16px;color:#3a4a5a;font-size:12px;">🌐 Demo – der echte Browser würde die Seite laden.</div>
         `;
         showNotification('Browser', `Navigiere zu ${url}`);
     }
 
-    goBtn.addEventListener('click', () => {
-        const url = urlInput.value.trim() || 'neron-os.dev';
-        navigate(url);
+    goBtn.addEventListener('click', () => navigate(urlInput.value.trim() || 'neron-os.dev'));
+    urlInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') goBtn.click(); });
+    content.querySelectorAll('[data-url]').forEach(el => {
+        el.addEventListener('click', () => {
+            urlInput.value = el.dataset.url;
+            navigate(el.dataset.url);
+        });
     });
-
-    urlInput.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') goBtn.click();
-    });
-
     setTimeout(() => navigate('neron-os.dev'), 100);
 }
 
 // ---------- EINSTELLUNGEN ----------
 function openSettings() {
-    const win = createWindow('Einstellungen', `
+    createWindow('Einstellungen', `
         <div class="setting-group">
             <label>Helligkeit</label>
             <input type="range" min="0" max="100" value="80">
@@ -281,71 +349,15 @@ function openSettings() {
         </div>
         <div class="setting-group">
             <label>Design</label>
-            <select>
-                <option>Dunkel (Standard)</option>
-                <option>Hell</option>
-                <option>Neron Rot</option>
-            </select>
+            <select><option>Dunkel (Standard)</option><option>Hell</option><option>Neron Rot</option></select>
         </div>
-        <div class="setting-group">
-            <label>System-Töne</label>
-            <div class="toggle-group">
-                <div class="toggle active" id="soundToggle"></div>
-                <span>Aktiviert</span>
-            </div>
+        <div style="color:#5f738c;font-size:12px;margin-top:12px;padding:8px;background:#0f141c;border-radius:4px;border:1px solid #1a212b;">
+            <strong>System</strong><br>
+            Version: 1.0<br>
+            RAM: 8.0 GB (davon ${processes.reduce((s,p) => s + p.ram, 0).toFixed(1)} GB genutzt)<br>
+            Prozesse: ${processes.length}
         </div>
-    `, 440, 320, 200, 100);
-
-    // Toggle
-    const toggle = win.querySelector('.toggle');
-    const label = toggle.parentElement.querySelector('span');
-    toggle.addEventListener('click', () => {
-        toggle.classList.toggle('active');
-        label.textContent = toggle.classList.contains('active') ? 'Aktiviert' : 'Deaktiviert';
-        showNotification('Einstellung', `System-Töne ${label.textContent.toLowerCase()}.`);
-    });
-
-    // Slider
-    win.querySelectorAll('input[type="range"]').forEach(slider => {
-        slider.addEventListener('input', () => {
-            showNotification('Einstellung', `${slider.parentElement.querySelector('label').textContent} auf ${slider.value}% gesetzt.`);
-        });
-    });
-
-    // Select
-    win.querySelector('select').addEventListener('change', (e) => {
-        showNotification('Design', `Design auf "${e.target.value}" gesetzt.`);
-    });
+    `, 420, 340, 200, 100);
 }
 
-// ---------- DESKTOP ICONS ----------
-document.querySelectorAll('.desktop-icon').forEach(icon => {
-    icon.addEventListener('click', () => {
-        const app = icon.dataset.app;
-        switch (app) {
-            case 'files': openFiles(); break;
-            case 'settings': openSettings(); break;
-            case 'browser': openBrowser(); break;
-            case 'taskmanager': openTaskmanager(); break;
-        }
-    });
-});
-
-// ---------- RESPONSIVE: Fenster beim Resize anpassen ----------
-window.addEventListener('resize', () => {
-    document.querySelectorAll('.window').forEach(win => {
-        const maxW = desktop.clientWidth - 40;
-        const maxH = desktop.clientHeight - 60;
-        const w = parseInt(win.style.width);
-        const h = parseInt(win.style.height);
-        if (w > maxW) win.style.width = maxW + 'px';
-        if (h > maxH) win.style.height = maxH + 'px';
-        const left = parseInt(win.style.left);
-        const top = parseInt(win.style.top);
-        if (left + w > desktop.clientWidth) win.style.left = (desktop.clientWidth - w - 20) + 'px';
-        if (top + h > desktop.clientHeight) win.style.top = (desktop.clientHeight - h - 20) + 'px';
-    });
-});
-
-console.log('🔥 NERON OS – Core Edition geladen!');
-console.log('📌 Klicke auf die Icons, um die Apps zu öffnen.');
+console.log('🔥 NERON OS – Desktop geladen!');
